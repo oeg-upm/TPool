@@ -7,6 +7,9 @@ Python2 include an undocumented thread pool which
 only accept functions with single arguments. TPool 
 implements a pool for threads supporting multiple arguments 
 
+# Install
+`pip install TPool`
+
 ### Why not PPool
 If you want to have access to shared variables. But also
 note that in Python (at least the cPython version)
