@@ -19,7 +19,7 @@ bottle neck is disk IO or network.
 
 ## Example
 ```
-from TPool import Pool
+from TPool.TPool import Pool
 from threading import Lock
 
 pairs = []
@@ -31,7 +31,8 @@ def foo_merge(name, num, lock):
     pairs.append((name, num))
     lock.release()
 
-def example(self):
+
+def example():
     global pairs
     pairs = []
     lock = Lock()
@@ -42,6 +43,9 @@ def example(self):
         params.append(param)
     pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
     pool.run()
-   
-example()
+    print pairs
+
+
+if __name__ == "__main__":
+    example()
 ```
