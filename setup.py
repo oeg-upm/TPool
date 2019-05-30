@@ -1,8 +1,8 @@
-# TPool
-[![Build Status](https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg)](https://semaphoreci.com/ahmad88me/tpool)
-[![codecov](https://codecov.io/gh/oeg-upm/TPool/branch/master/graph/badge.svg)](https://codecov.io/gh/oeg-upm/TPool)
+import setuptools
 
-Thread Pool for python 2 with multiple parameters. 
+with open("README.md", "r") as fh:
+    long_description = """
+    Thread Pool for python 2 with multiple parameters. 
 Python2 include an undocumented thread pool which 
 only accept functions with single arguments. TPool 
 implements a pool for threads supporting multiple arguments 
@@ -42,3 +42,23 @@ def example(self):
    
 example()
 ```
+
+    """
+
+setuptools.setup(
+    name="TPool",
+    version="1.0",
+    author="Ahmad Alobaid",
+    author_email="aalobaid@fi.upm.es",
+    description="Thread Pool for Python 2",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/oeg-upm/PPool",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 2",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Topic :: System :: Operating System"
+    ],
+)
