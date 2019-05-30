@@ -5,7 +5,8 @@
 Thread Pool for python 2 with multiple parameters. 
 
 Python2 include an undocumented thread pool which 
-only accept functions with single arguments. 
+only accept functions with single arguments. TPool 
+implements a pool for threads supporting multiple arguments 
 
 ### Why not PPool
 If you want to have access to shared variables. But also
