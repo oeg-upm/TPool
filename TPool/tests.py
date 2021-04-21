@@ -1,8 +1,14 @@
 import unittest
+
 from TPool import Pool
 from threading import Lock
 
 pairs = []
+
+try:
+    pyrange = xrange
+except:
+    pyrange = range
 
 
 def foo_merge(name, num, lock):
@@ -33,7 +39,7 @@ class TestTPool(unittest.TestCase):
         lock = Lock()
         local_pairs = []
         params = []
-        for i in xrange(1000):
+        for i in pyrange(1000):
             p = (chr(ord('a') + i%26), i)
             local_pairs.append(p)
             param = p + (lock,)
@@ -49,7 +55,7 @@ class TestTPool(unittest.TestCase):
         lock = Lock()
         local_pairs = []
         params = []
-        for i in xrange(1000):
+        for i in pyrange(1000):
             p = (chr(ord('a') + i%26), i)
             local_pairs.append(p)
             param = p + (lock,)

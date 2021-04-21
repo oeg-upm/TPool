@@ -2,10 +2,13 @@
 [![Build Status](https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg)](https://semaphoreci.com/ahmad88me/tpool)
 [![codecov](https://codecov.io/gh/oeg-upm/TPool/branch/master/graph/badge.svg)](https://codecov.io/gh/oeg-upm/TPool)
 
-Thread Pool for python 2 with multiple parameters. 
+It supports py2 and py3
+
+Thread Pool for python 2 (and 3) with multiple parameters. 
 Python2 include an undocumented thread pool which 
 only accept functions with single arguments. TPool 
 implements a pool for threads supporting multiple arguments 
+
 
 # Install
 `pip install TPool`
