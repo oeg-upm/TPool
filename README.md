@@ -21,6 +21,7 @@ threads at the same time, but it is good enough if the
 bottle neck is disk IO or network. 
 
 ## Example
+### Example 1 - functions
 ```
 from TPool.TPool import Pool
 from threading import Lock
@@ -51,4 +52,44 @@ def example():
 
 if __name__ == "__main__":
     example()
+```
+
+### Example 2 - Classes
+*This is a python3 example*
+```
+from multiprocessing import Process, Lock, Pipe
+from TPool.TPool import Pool
+import string
+
+
+class Annotator:
+
+    def __init__(self):
+        self.gvar = "abc: "
+        self.data = {
+            "abc": 123,
+        }
+
+    def f(self, te, lock):
+        print("te: "+te)
+        lock.acquire()
+        self.gvar += te+" --"
+        self.data[te] = "Ok"
+        lock.release()
+
+    def test_threads(self):
+        params_list = []
+        lock = Lock()
+        for i in range(100):
+            s = str(i)+" "
+            s += string.ascii_lowercase[i%26]
+            s += string.ascii_lowercase[(i+1)%26]
+            params_list.append((s, lock))
+        pool = Pool(max_num_of_threads=10, func=self.f, params_list=params_list)
+        pool.run()
+        print("final: "+self.gvar)
+        print(self.data)
+
+a = Annotator()
+a.test_threads()
 ```
