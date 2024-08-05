@@ -1,11 +1,6 @@
 import threading
 import logging
 
-try:
-    pyrange = xrange
-except:
-    pyrange = range
-
 
 class Pool:
     """
@@ -57,7 +52,7 @@ class Pool:
             available_slots = self.max_num_of_thread - active
             available_slots = min(available_slots, remaining)
 
-            for slot in pyrange(available_slots):
+            for slot in range(available_slots):
                 params = self.param_list[-1]
                 th = threading.Thread(target=self.func, args=params)
                 del self.param_list[-1]
