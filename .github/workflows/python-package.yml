@@ -38,4 +38,4 @@ jobs:
     - name: Unit Tests
       run: |
         ls
-        python tests.py
+        python TPool/TPool/tests.py

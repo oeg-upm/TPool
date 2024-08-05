@@ -1,6 +1,6 @@
 # TPool
 
-![tests](./actions/workflows/python-package.yml/badge.svg)
+![tests](../../workflows/python-package.yml/badge.svg)
 
 [//]: # ()
 [//]: # ([![Build Status]&#40;https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg&#41;]&#40;https://semaphoreci.com/ahmad88me/tpool&#41;)
