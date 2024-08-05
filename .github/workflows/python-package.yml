@@ -37,5 +37,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Unit Tests
       run: |
+        echo "first: "
         ls
-        python TPool/TPool/tests.py
+        echo "second: "
+        cd TPool;ls
+        python TPool/tests.py
