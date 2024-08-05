@@ -41,4 +41,4 @@ jobs:
         ls
         echo "second: "
         cd TPool;ls
-        python TPool/tests.py
+        cd TPool; ls; python tests.py
