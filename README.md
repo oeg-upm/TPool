@@ -1,6 +1,11 @@
 # TPool
-[![Build Status](https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg)](https://semaphoreci.com/ahmad88me/tpool)
-[![codecov](https://codecov.io/gh/oeg-upm/TPool/branch/master/graph/badge.svg)](https://codecov.io/gh/oeg-upm/TPool)
+
+![tests](/actions/workflows/python-package.yml/badge.svg)
+
+[//]: # ()
+[//]: # ([![Build Status]&#40;https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg&#41;]&#40;https://semaphoreci.com/ahmad88me/tpool&#41;)
+
+[//]: # ([![codecov]&#40;https://codecov.io/gh/oeg-upm/TPool/branch/master/graph/badge.svg&#41;]&#40;https://codecov.io/gh/oeg-upm/TPool&#41;)
 
 It supports py2 and py3
 
