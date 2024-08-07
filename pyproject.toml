@@ -1,0 +1,18 @@
+[project]
+name = "TPool"
+version = "1.4"
+authors = [
+  { name="Ahmad Alobaid", email="ahmad88me@gmail.com"},
+]
+description = "Pool for Threads"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/oeg-upm/TPool"
+Issues = "https://github.com/oeg-upm/TPool/issues"

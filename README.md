@@ -2,33 +2,41 @@
 
 ![tests](../../actions/workflows/python-package.yml/badge.svg)
 
-[//]: # ()
-[//]: # ([![Build Status]&#40;https://semaphoreci.com/api/v1/ahmad88me/tpool/branches/master/badge.svg&#41;]&#40;https://semaphoreci.com/ahmad88me/tpool&#41;)
-
-[//]: # ([![codecov]&#40;https://codecov.io/gh/oeg-upm/TPool/branch/master/graph/badge.svg&#41;]&#40;https://codecov.io/gh/oeg-upm/TPool&#41;)
-
-It supports py2 and py3
-
-Thread Pool for python 2 (and 3) with multiple parameters. 
-Python2 include an undocumented thread pool which 
-only accept functions with single arguments. TPool 
-implements a pool for threads supporting multiple arguments 
+Thread Pool for python 3 with multiple parameters. TPool implements a pool for threads supporting multiple arguments 
 
 
 # Install
-`pip install TPool`
+```
+pip install TPool
+```
 
-### Why not PPool
-If you want to have access to shared variables. But also
-note that in Python (at least the cPython version)
-include a global lock that it does not run multiple 
-threads at the same time, but it is good enough if the 
-bottle neck is disk IO or network. 
+# Run Tests
+```
+python -m unittest discover
+```
+
+# Thread Pools
+This package offer two different thread pools: `SeqPool` and `WildPool`.
+
+## SeqPool
+This pool is meant for a predefined set of input of the same function (called `target`).
+It expects the function that you would like to run in parallel and the list of arguments.
+So, it would create multiple threads of the same function but with a different output. 
+The pool make sure to only run `pool_size` number of threads at max. 
+
+## WildPool
+This is a more flexible pool which supports different threads with different
+functions and it also supports a timeout. It has a worker thread which spawn the
+the different threads until the `pool_size` is met. One a thread is finished
+or reached the timeout time, it would be killed and removed from the pool.
+If the worker is idel for `work_idel`
+
+
 
 ## Example
 ### Example 1 - functions
 ```
-from TPool.TPool import Pool
+from TPool
 from threading import Lock
 
 pairs = []

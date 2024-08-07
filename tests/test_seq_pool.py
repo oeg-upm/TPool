@@ -1,10 +1,9 @@
 import unittest
 
-from TPool import Pool
+from TPool import SeqPool
 from threading import Lock
 
 pairs = []
-
 
 
 def foo_merge(name, num, lock):
@@ -25,7 +24,7 @@ class TestTPool(unittest.TestCase):
         for p in local_pairs:
             param = p + (lock,)
             params.append(param)
-        pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=3, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 
@@ -41,7 +40,7 @@ class TestTPool(unittest.TestCase):
             param = p + (lock,)
             params.append(param)
 
-        pool = Pool(max_num_of_threads=100, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=100, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 
@@ -57,7 +56,7 @@ class TestTPool(unittest.TestCase):
             param = p + (lock,)
             params.append(param)
 
-        pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=3, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 
