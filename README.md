@@ -33,76 +33,84 @@ If the worker is idel for `work_idel`
 
 
 
-## Example
-### Example 1 - functions
+## Examples
+### Example 1: Wild Pool 
 ```
-from TPool
-from threading import Lock
-
-pairs = []
-
-
-def foo_merge(name, num, lock):
-    global pairs
-    lock.acquire()
-    pairs.append((name, num))
-    lock.release()
+from TPool import WildPool
+from threading import Thread, Lock
+import string
+import logging
 
 
-def example():
-    global pairs
-    pairs = []
-    lock = Lock()
-    local_pairs = [('A', 2), ('B', 3), ('C', 4), ('D', 5)]
-    params = []
-    for p in local_pairs:
-        param = p + (lock,)
-        params.append(param)
-    pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
-    pool.run()
-    print pairs
+class Example:
+
+    def __init__(self):
+        self.data = dict()
+        self.lock = Lock()
+
+    def set_even_or_odd(self, n):
+        print(f"processing: {n}")
+        self.lock.acquire()
+        val = ""
+        if n%2 == 0:
+            val = "even"
+        else:
+            val = "odd"
+        self.data[n] = val
+        self.lock.release()
+
+    def test_threads(self):
+        logger = logging.getLogger('WildPool')
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+        pool = WildPool(pool_size=5, logger=logger)
+        for i in range(100):
+            th = Thread(target=self.set_even_or_odd, args=(i,))
+            pool.add_thread(th)
+        pool.join()
+        print(self.data)
 
 
-if __name__ == "__main__":
-    example()
+a = Example()
+a.test_threads()
+
 ```
 
-### Example 2 - Classes
-*This is a python3 example*
+### Example 2: Sequential Pool 
 ```
 from multiprocessing import Process, Lock, Pipe
-from TPool.TPool import Pool
+from TPool import SeqPool
 import string
 
 
-class Annotator:
+class Example:
 
     def __init__(self):
-        self.gvar = "abc: "
-        self.data = {
-            "abc": 123,
-        }
+        self.data = dict()
 
-    def f(self, te, lock):
-        print("te: "+te)
+    def set_even_or_odd(self, n, lock):
         lock.acquire()
-        self.gvar += te+" --"
-        self.data[te] = "Ok"
+        val = ""
+        if n%2 == 0:
+            val = "even"
+        else:
+            val = "odd"
+        self.data[n] = val
         lock.release()
 
     def test_threads(self):
         params_list = []
         lock = Lock()
         for i in range(100):
-            s = str(i)+" "
-            s += string.ascii_lowercase[i%26]
-            s += string.ascii_lowercase[(i+1)%26]
-            params_list.append((s, lock))
-        pool = Pool(max_num_of_threads=10, func=self.f, params_list=params_list)
+            params_list.append((i, lock))
+        pool = SeqPool(pool_size=10, target=self.set_even_or_odd, params_list=params_list)
         pool.run()
-        print("final: "+self.gvar)
         print(self.data)
 
-a = Annotator()
+
+a = Example()
 a.test_threads()
+
 ```
