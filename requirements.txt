@@ -1,3 +1,3 @@
 Sphinx>=3.0.3
-sphinx-autodoc-typehints>=2.2.3
+sphinx-autodoc-typehints>=2.0.1
 sphinx_example_includer>=0.1
