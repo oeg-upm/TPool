@@ -1,11 +1,11 @@
 [project]
 name = "TPool"
-version = "1.4"
+version = "1.5"
 authors = [
   { name="Ahmad Alobaid", email="ahmad88me@gmail.com"},
 ]
 description = "Pool for Threads"
-readme = "README.md"
+readme = "README-pypi.md"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
