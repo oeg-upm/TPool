@@ -4,7 +4,18 @@ import time
 
 
 class WildPool:
+    """
+    A pool for managing threads.
 
+    :param pool_size: The maximum number of threads in the pool.
+    :type pool_size: int
+    :param timeout: The default timeout for threads if not specified.
+    :type timeout: int
+    :param worker_timeout: The idle timeout for the worker.
+    :type worker_timeout: int
+    :param logger: Optional custom logger. If not provided, a default logger will be used.
+    :type logger: logging.Logger
+    """
     def __init__(self, pool_size=5, timeout=0, worker_timeout=3, logger=None):
         """
         pool_size: int
@@ -29,9 +40,12 @@ class WildPool:
 
     def add_thread(self, thread: threading.Thread, timeout=0):
         """
-        Add thread to the pool.
-        thread: The thread to be added to the pool
-        timeout. This is optional. if it is None, then
+        Add a thread to the pool.
+
+        :param thread: The thread to be added to the pool.
+        :type thread: threading.Thread
+        :param timeout: The timeout for the thread. If not specified, the default pool timeout will be used.
+        :type timeout: int
         """
         d = {
             "thread": thread
@@ -41,23 +55,24 @@ class WildPool:
         elif self.timeout > 0:
             d["timeout"] = self.timeout
 
-        self.lock.acquire()
-        self.bench.append(d)
-        self.lock.release()
+        with self.lock:
+            self.bench.append(d)
         self.start()
 
     def start(self):
-        self.lock.acquire()
-        wake_up = False
-        if self.bench:
-            self.logger.debug("Bench is not empty")
-            if not self.worker or not self.worker.is_alive:
-                wake_up = True
+        """
+        Start the worker if there are threads in the bench and no worker is currently running.
+        """
+        with self.lock:
+            wake_up = False
+            if self.bench:
+                self.logger.debug("Bench is not empty")
+                if not self.worker or not self.worker.is_alive:
+                    wake_up = True
+                else:
+                    wake_up = False
             else:
-                wake_up = False
-        else:
-            self.logger.debug("Bench is empty")
-        self.lock.release()
+                self.logger.debug("Bench is empty")
         if wake_up:
             self._create_worker()
 
@@ -65,7 +80,6 @@ class WildPool:
         """
         Remove threads which are already completed from the Pool so more threads can be added
         """
-        # self.lock.acquire()
         tids = list(self.pool.keys())
         for tid in tids:
             t = self.pool[tid]
@@ -73,13 +87,11 @@ class WildPool:
                 self.logger.debug(f"Removing thread {t} from the pool")
                 del self.pool[tid]
                 self.last_kill = time.time()
-        # self.lock.release()
 
     def _kick_slow_threads(self):
         """
         Remove threads which exceeded the specified timeout from the Pool so more threads can be added
         """
-        # self.lock.acquire()
         tids =list(self.pool.keys())
         for tid in tids:
             t = self.pool[tid]
@@ -90,22 +102,20 @@ class WildPool:
                     t["thread"].kill()
                     self.last_kill = time.time()
                     del self.pool[tid]
-        # self.lock.release()
 
     def _create_worker(self):
         """
         Spawn a new worker if there is no working running already
         """
         self.logger.debug("create worker")
-        self.lock.acquire()
-        if self.worker and self.worker.is_alive:
-            self.logger.debug("The worker is already running")
-        else:
-            self.logger.debug("Spawning a new worker")
-            self.worker = threading.Thread(target=self._worker_func)
-            self.worker.start()
-            self.logger.debug("worker is ran")
-        self.lock.release()
+        with self.lock:
+            if self.worker and self.worker.is_alive:
+                self.logger.debug("The worker is already running")
+            else:
+                self.logger.debug("Spawning a new worker")
+                self.worker = threading.Thread(target=self._worker_func)
+                self.worker.start()
+                self.logger.debug("worker is ran")
 
     def _clean_pool(self):
         self._kick_dead_threads()
@@ -114,27 +124,22 @@ class WildPool:
     def _should_break(self):
         b = False
         if self.worker_timeout > 0 and self.last_kill:
-            self.lock.acquire()
-            elapsed = time.time() - self.last_kill
-            if elapsed > self.worker_timeout:
-                b = True
-            self.lock.release()
+            with self.lock:
+                elapsed = time.time() - self.last_kill
+                if elapsed > self.worker_timeout:
+                    b = True
         return b
 
     def _fill_the_pool(self):
-        # self.lock.acquire()
         tids = self.pool.keys()
         num_vacancies = max(self.pool_size - len(tids), 0)
         num_mov = min(num_vacancies, len(self.bench))
-        # self.logger.debug(f"num_vacancies: {num_vacancies}")
-        # self.logger.debug(f"num_mov: {num_mov}")
         for _ in range(num_mov):
             tj = self.bench.pop(0)
             tid = tj["thread"].start()
             if "timeout" in tj:
                 tj["start_time"] = time.time()
             self.pool[tid] = tj
-        # self.lock.release()
 
     def _worker_func(self):
         while True:
@@ -147,13 +152,15 @@ class WildPool:
 
     def join(self, relax=0.1):
         """
-        relax: float. Sleep number of seconds after each iteration. 0 means not waiting.
+        Wait for all threads in the pool and bench to complete.
+
+        :param relax: Sleep time in seconds between checks. 0 means no waiting.
+        :type relax: float
         """
         done = False
         while not done:
-            self.lock.acquire()
-            if len(self.pool) == len(self.bench) == 0:
-                done = True
-            self.lock.release()
+            with self.lock:
+                if len(self.pool) == len(self.bench) == 0:
+                    done = True
             if relax > 0:
                 time.sleep(relax)
