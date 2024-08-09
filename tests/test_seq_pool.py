@@ -1,14 +1,9 @@
 import unittest
 
-from TPool import Pool
+from TPool import SeqPool
 from threading import Lock
 
 pairs = []
-
-try:
-    pyrange = xrange
-except:
-    pyrange = range
 
 
 def foo_merge(name, num, lock):
@@ -29,7 +24,7 @@ class TestTPool(unittest.TestCase):
         for p in local_pairs:
             param = p + (lock,)
             params.append(param)
-        pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=3, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 
@@ -39,13 +34,13 @@ class TestTPool(unittest.TestCase):
         lock = Lock()
         local_pairs = []
         params = []
-        for i in pyrange(1000):
+        for i in range(1000):
             p = (chr(ord('a') + i%26), i)
             local_pairs.append(p)
             param = p + (lock,)
             params.append(param)
 
-        pool = Pool(max_num_of_threads=100, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=100, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 
@@ -55,13 +50,13 @@ class TestTPool(unittest.TestCase):
         lock = Lock()
         local_pairs = []
         params = []
-        for i in pyrange(1000):
+        for i in range(1000):
             p = (chr(ord('a') + i%26), i)
             local_pairs.append(p)
             param = p + (lock,)
             params.append(param)
 
-        pool = Pool(max_num_of_threads=3, func=foo_merge, params_list=params)
+        pool = SeqPool(pool_size=3, target=foo_merge, params_list=params)
         pool.run()
         self.assertListEqual(sorted(local_pairs), sorted(pairs))
 

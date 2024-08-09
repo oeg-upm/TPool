@@ -1,29 +1,24 @@
 import threading
 import logging
 
-try:
-    pyrange = xrange
-except:
-    pyrange = range
 
-
-class Pool:
+class SeqPool:
     """
-    This is a thread pool to extend the functionality of ThreadPool in Python2
+    This is a thread pool to sequentially run threads
     """
 
-    def __init__(self, max_num_of_threads, func, params_list, logger=None):
+    def __init__(self, pool_size, target, params_list, logger=None):
         """
-        :param max_num_of_threads:
-        :param func:
+        :param pool_size:
+        :param target:
         :param params_list:
         :param logger:
         """
-        if len(params_list) < max_num_of_threads:
-            max_num_of_threads = len(params_list)
+        if len(params_list) < pool_size:
+            pool_size = len(params_list)
 
-        self.max_num_of_thread = max_num_of_threads
-        self.func = func
+        self.max_num_of_thread = pool_size
+        self.target = target
         self.param_list = params_list
 
         self.threads = []
@@ -57,9 +52,9 @@ class Pool:
             available_slots = self.max_num_of_thread - active
             available_slots = min(available_slots, remaining)
 
-            for slot in pyrange(available_slots):
+            for slot in range(available_slots):
                 params = self.param_list[-1]
-                th = threading.Thread(target=self.func, args=params)
+                th = threading.Thread(target=self.target, args=params)
                 del self.param_list[-1]
                 th.start()
                 self.threads.append(th)
