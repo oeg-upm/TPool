@@ -1,0 +1,3 @@
+Sphinx==8.0.2
+sphinx-autodoc-typehints==2.2.3
+sphinx_example_includer==0.1
