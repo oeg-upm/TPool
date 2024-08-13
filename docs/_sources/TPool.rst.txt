@@ -1,6 +1,8 @@
 TPool package
 =============
 
+Submodules
+----------
 
 TPool.seqpool module
 --------------------
@@ -18,3 +20,10 @@ TPool.wildpool module
    :undoc-members:
    :show-inheritance:
 
+Module contents
+---------------
+
+.. automodule:: TPool
+   :members:
+   :undoc-members:
+   :show-inheritance:
