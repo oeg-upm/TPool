@@ -5,6 +5,7 @@
 
 Thread Pool for python 3 with multiple parameters. TPool implements a pool for threads supporting multiple arguments 
 
+The documentation is available [here](https://oeg-upm.github.io/TPool/)
 
 # Install
 ```
@@ -15,6 +16,9 @@ pip install TPool
 ```
 python -m unittest discover
 ```
+
+
+
 
 # Thread Pools
 This package offer two different thread pools: `SeqPool` and `WildPool`.
@@ -31,7 +35,6 @@ functions and it also supports a timeout. It has a worker thread which spawn the
 the different threads until the `pool_size` is met. One a thread is finished
 or reached the timeout time, it would be killed and removed from the pool.
 If the worker is idel for `work_idel`
-
 
 
 ## Examples
