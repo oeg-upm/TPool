@@ -1,7 +1,5 @@
 # TPool
 
-[![PyPI version](https://badge.fury.io/py/TPool.svg)](https://badge.fury.io/py/TPool)
-
 Thread Pool for python 3 with multiple parameters. TPool implements a pool for threads supporting multiple arguments 
 
 
