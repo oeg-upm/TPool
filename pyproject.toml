@@ -18,6 +18,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/oeg-upm/TPool"
 Issues = "https://github.com/oeg-upm/TPool/issues"
+Documentation = "https://oeg-upm.github.io/TPool/"
 
 
 [tool.setuptools.packages.find]
