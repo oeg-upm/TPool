@@ -9,10 +9,15 @@ readme = "README-pypi.md"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "License :: OSI Approved :: Apache Software License"
+
 ]
 
 [project.urls]
 Homepage = "https://github.com/oeg-upm/TPool"
 Issues = "https://github.com/oeg-upm/TPool/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
