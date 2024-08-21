@@ -4,7 +4,9 @@ import string
 
 
 class Example:
-
+    """
+    SeqPool Example.
+    """
     def __init__(self):
         self.data = dict()
 

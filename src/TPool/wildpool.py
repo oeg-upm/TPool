@@ -21,6 +21,7 @@ class WildPool:
         pool_size: int
         timeout: int in seconds
         worker_timeout: int in seconds
+        logger: The logger.
         """
         self.pool_size = pool_size
         self.pool = dict()
