@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TPool package &#8212; TPool 1.5 documentation</title>
+    <title>TPool package &#8212; TPool 1.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6d95b957"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=5a6d333d"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -59,20 +59,38 @@
 <dt class="sig sig-object py" id="TPool.wildpool.WildPool">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">TPool.wildpool.</span></span><span class="sig-name descname"><span class="pre">WildPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TPool/wildpool.html#WildPool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#TPool.wildpool.WildPool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A pool for managing threads.</p>
+<p>A flexible thread pool for managing concurrent tasks.</p>
+<p>The <cite>WildPool</cite> class provides a thread pool that efficiently manages the execution of multiple threads
+concurrently. Unlike a sequential thread pool, <cite>WildPool</cite> does not guarantee the order of execution
+of tasks, making it particularly suited for scenarios where tasks are independent and can be processed
+in parallel without needing to adhere to a specific sequence.</p>
+<p>This thread pool is designed for high-concurrency environments such as messaging queues
+and daemons, where managing multiple background tasks simultaneously is crucial. By limiting
+the number of concurrent threads to a specified maximum (<cite>pool_size</cite>), <cite>WildPool</cite> ensures that
+system resources are used efficiently, preventing issues like resource exhaustion or system slowdown.</p>
+<p>Key features of <cite>WildPool</cite> include:</p>
+<ul class="simple">
+<li><p><strong>Concurrency Management:</strong> Manages a fixed number of threads, ensuring no more than the specified
+number of tasks run concurrently, which helps in maintaining optimal system performance.</p></li>
+<li><p><strong>Non-Sequential Execution:</strong> Tasks are executed as soon as resources are available, without
+guaranteeing any particular order, which is ideal for tasks that do not depend on each other.</p></li>
+<li><p><strong>Automatic Cleanup:</strong> Completed threads are automatically removed from the pool, freeing up resources
+for new tasks.</p></li>
+<li><p><strong>Daemon-Friendly:</strong> The pool is well-suited for daemon processes and long-running services where tasks
+need to be processed continuously in the background.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pool_size</strong> (<em>int</em>) – The maximum number of threads in the pool.</p></li>
-<li><p><strong>timeout</strong> (<em>int</em>) – The default timeout for threads if not specified.</p></li>
-<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Optional custom logger. If not provided, a default logger will be used.</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em>, </em><em>optional</em>) – Optional custom logger. If not provided, a default logger will be used.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="TPool.wildpool.WildPool.add_thread">
 <span class="sig-name descname"><span class="pre">add_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Thread</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/TPool/wildpool.html#WildPool.add_thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#TPool.wildpool.WildPool.add_thread" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a thread to the pool.</p>
+<dd><p>Add a thread to the pool to be managed and executed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>thread</strong> (<em>threading.Thread</em>) – The thread to be added to the pool.</p>
@@ -83,13 +101,19 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="TPool.wildpool.WildPool.start_worker">
 <span class="sig-name descname"><span class="pre">start_worker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/TPool/wildpool.html#WildPool.start_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#TPool.wildpool.WildPool.start_worker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Spawn a new worker if there is no running one already</p>
+<dd><p>Start a worker thread if none is currently running.</p>
+<p>This method ensures that only one worker thread is running to manage
+the threads in the pool. If a worker thread is already running, it will not
+start a new one.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="TPool.wildpool.WildPool.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/TPool/wildpool.html#WildPool.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#TPool.wildpool.WildPool.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Stop the worker thread and release resources.</p>
+<p>This method gracefully shuts down the worker thread, ensuring that
+all running threads are completed and resources are cleaned up.</p>
+</dd></dl>
 
 </dd></dl>
 
