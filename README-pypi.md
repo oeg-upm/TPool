@@ -1,11 +1,6 @@
 # TPool
 
-[![docs](https://github.com/oeg-upm/TPool/actions/workflows/sphinx-docs.yml/badge.svg)](https://oeg-upm.github.io/TPool/)
-[![PyPI version](https://badge.fury.io/py/TPool.svg)](https://badge.fury.io/py/TPool)
-
 TPool is a Python 3 library that provides flexible and powerful thread pools designed for handling concurrent tasks with ease. It supports the execution of multiple threads with various configurations and allows for both sequential and non-sequential task management.
-
-
 The documentation is available [here](https://oeg-upm.github.io/TPool/)
 
 
