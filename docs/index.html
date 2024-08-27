@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TPool &#8212; TPool 1.5 documentation</title>
+    <title>TPool &#8212; TPool 1.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6d95b957"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=5a6d333d"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -32,38 +32,59 @@
             
   <section id="tpool">
 <h1>TPool<a class="headerlink" href="#tpool" title="Permalink to this heading">¶</a></h1>
-<p>Thread Pool for python 3 with multiple parameters. TPool implements a pool for threads supporting multiple arguments</p>
-<p>The documentation is available <a class="reference external" href="https://oeg-upm.github.io/TPool/">here</a></p>
-</section>
+<p>TPool is a Python 3 library that provides flexible and powerful thread pools designed for handling concurrent tasks with ease. It supports the execution of multiple threads with various configurations and allows for both sequential and non-sequential task management.
+The documentation is available <a class="reference external" href="https://oeg-upm.github.io/TPool/">here</a></p>
 <section id="install">
-<h1>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h1>
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">TPool</span>
 </pre></div>
 </div>
 </section>
 <section id="run-tests">
-<h1>Run Tests<a class="headerlink" href="#run-tests" title="Permalink to this heading">¶</a></h1>
+<h2>Run Tests<a class="headerlink" href="#run-tests" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
 </pre></div>
 </div>
 </section>
-<section id="thread-pools">
-<h1>Thread Pools<a class="headerlink" href="#thread-pools" title="Permalink to this heading">¶</a></h1>
-<p>This package offer two different thread pools: <code class="docutils literal notranslate"><span class="pre">SeqPool</span></code> and <code class="docutils literal notranslate"><span class="pre">WildPool</span></code>.</p>
+<section id="thread-pools-overview">
+<h2>Thread Pools Overview<a class="headerlink" href="#thread-pools-overview" title="Permalink to this heading">¶</a></h2>
+<p>TPool offers two distinct types of thread pools to cater to different use cases:</p>
 <section id="seqpool">
-<h2>SeqPool<a class="headerlink" href="#seqpool" title="Permalink to this heading">¶</a></h2>
-<p>This pool is meant for a predefined set of input of the same function (called <code class="docutils literal notranslate"><span class="pre">target</span></code>).
-It expects the function that you would like to run in parallel and the list of arguments.
-So, it would create multiple threads of the same function but with a different output.
-The pool make sure to only run <code class="docutils literal notranslate"><span class="pre">pool_size</span></code> number of threads at max.</p>
+<h3>SeqPool<a class="headerlink" href="#seqpool" title="Permalink to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">SeqPool</span></code> is designed for scenarios where you have a predefined set of inputs and wish to run the same function
+(<code class="docutils literal notranslate"><span class="pre">target</span></code>) across multiple threads. It ensures that no more than a specified number (<code class="docutils literal notranslate"><span class="pre">pool_size</span></code>) of threads are
+running concurrently.</p>
+<ul class="simple">
+<li><p><strong>Use Case</strong>: Ideal for batch processing tasks where each task can run in parallel, but the order of execution
+matters.</p></li>
+<li><p><strong>Execution</strong>: The pool executes the provided function with different arguments, managing the concurrency to avoid
+overwhelming system resources.</p></li>
+</ul>
 </section>
 <section id="wildpool">
-<h2>WildPool<a class="headerlink" href="#wildpool" title="Permalink to this heading">¶</a></h2>
-<p>This is a more flexible pool which supports different threads with different
-functions and it also supports a timeout. It has a worker thread which spawn the
-the different threads until the <code class="docutils literal notranslate"><span class="pre">pool_size</span></code> is met. One a thread is finished
-or reached the timeout time, it would be killed and removed from the pool.
-If the worker is idel for <code class="docutils literal notranslate"><span class="pre">work_idel</span></code></p>
+<h3>WildPool<a class="headerlink" href="#wildpool" title="Permalink to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">WildPool</span></code> is a flexible thread pool designed for managing concurrent tasks in non-sequential order.
+It efficiently handles multiple threads, allowing different functions to run concurrently without guaranteeing the
+order of execution.</p>
+<ul class="simple">
+<li><p><strong>Use Case</strong>: Perfect for handling diverse tasks in daemon processes (e.g., messaging
+queues), where tasks need to be processed as soon as resources are available.</p></li>
+<li><p><strong>Execution</strong>: A worker thread manages the execution of threads, ensuring that the number of concurrent threads
+does not exceed the specified <code class="docutils literal notranslate"><span class="pre">pool_size</span></code>. Threads are automatically removed from the pool upon completion.</p></li>
+</ul>
+<section id="detailed-description-of-wildpool">
+<h4>Detailed Description of WildPool:<a class="headerlink" href="#detailed-description-of-wildpool" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Concurrency Management</strong>: <code class="docutils literal notranslate"><span class="pre">WildPool</span></code> manages a fixed number of threads, ensuring no more than the specified
+number of tasks run concurrently, which helps in maintaining optimal system performance.</p></li>
+<li><p><strong>Non-Sequential Execution</strong>: Tasks are executed as soon as resources are available, without guaranteeing any
+particular order, making it ideal for tasks that do not depend on each other.</p></li>
+<li><p><strong>Automatic Cleanup</strong>: Completed threads are automatically removed from the pool, freeing up resources for new tasks.</p></li>
+<li><p><strong>Daemon-Friendly</strong>: The pool is well-suited for daemon processes and long-running services where tasks need to be
+processed continuously in the background.</p></li>
+</ul>
+</section>
+</section>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
@@ -147,6 +168,15 @@ If the worker is idel for <code class="docutils literal notranslate"><span class
 <span class="n">a</span><span class="o">.</span><span class="n">test_threads</span><span class="p">()</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h2>
+<p>Contributions are welcome! Please fork the repository and submit a pull request with your improvements or bug fixes.</p>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this heading">¶</a></h2>
+<p>This project is licensed under the Apache License. See the LICENSE file for details.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -165,7 +195,6 @@ If the worker is idel for <code class="docutils literal notranslate"><span class
 </li>
 </ul>
 </div>
-</section>
 </section>
 </section>
 <section id="indices-and-tables">

@@ -1,6 +1,6 @@
 [project]
 name = "TPool"
-version = "1.5"
+version = "1.6"
 authors = [
   { name="Ahmad Alobaid", email="ahmad88me@gmail.com"},
 ]

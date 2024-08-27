@@ -1,40 +1,56 @@
 # TPool
 
 ![tests](../../actions/workflows/python-package.yml/badge.svg)
-[![PyPI version](https://badge.fury.io/py/TPool.svg?kill-cache=1)](https://badge.fury.io/py/TPool)
+[![docs](../../actions/workflows/sphinx-docs.yml/badge.svg)](https://oeg-upm.github.io/TPool/)
+[![PyPI version](https://badge.fury.io/py/TPool.svg)](https://badge.fury.io/py/TPool)
 
-Thread Pool for python 3 with multiple parameters. TPool implements a pool for threads supporting multiple arguments 
+TPool is a Python 3 library that provides flexible and powerful thread pools designed for handling concurrent tasks with ease. It supports the execution of multiple threads with various configurations and allows for both sequential and non-sequential task management.
+
 
 The documentation is available [here](https://oeg-upm.github.io/TPool/)
 
-# Install
+
+## Install
 ```
 pip install TPool
 ```
 
-# Run Tests
+## Run Tests
 ```
 python -m unittest discover
 ```
 
 
+## Thread Pools Overview 
+TPool offers two distinct types of thread pools to cater to different use cases:
 
+### SeqPool
+`SeqPool` is designed for scenarios where you have a predefined set of inputs and wish to run the same function
+(`target`) across multiple threads. It ensures that no more than a specified number (`pool_size`) of threads are
+running concurrently. 
+* **Use Case**: Ideal for batch processing tasks where each task can run in parallel, but the order of execution
+matters. 
+* **Execution**: The pool executes the provided function with different arguments, managing the concurrency to avoid 
+overwhelming system resources. 
 
-# Thread Pools
-This package offer two different thread pools: `SeqPool` and `WildPool`.
+### WildPool 
+`WildPool` is a flexible thread pool designed for managing concurrent tasks in non-sequential order.
+It efficiently handles multiple threads, allowing different functions to run concurrently without guaranteeing the 
+order of execution.
+* **Use Case**: Perfect for handling diverse tasks in daemon processes (e.g., messaging
+queues), where tasks need to be processed as soon as resources are available. 
+* **Execution**: A worker thread manages the execution of threads, ensuring that the number of concurrent threads
+does not exceed the specified `pool_size`. Threads are automatically removed from the pool upon completion.
 
-## SeqPool
-This pool is meant for a predefined set of input of the same function (called `target`).
-It expects the function that you would like to run in parallel and the list of arguments.
-So, it would create multiple threads of the same function but with a different output. 
-The pool make sure to only run `pool_size` number of threads at max. 
+#### Detailed Description of WildPool:
+* **Concurrency Management**: `WildPool` manages a fixed number of threads, ensuring no more than the specified
+number of tasks run concurrently, which helps in maintaining optimal system performance. 
+* **Non-Sequential Execution**: Tasks are executed as soon as resources are available, without guaranteeing any 
+particular order, making it ideal for tasks that do not depend on each other. 
+* **Automatic Cleanup**: Completed threads are automatically removed from the pool, freeing up resources for new tasks. 
+* **Daemon-Friendly**: The pool is well-suited for daemon processes and long-running services where tasks need to be
+processed continuously in the background.
 
-## WildPool
-This is a more flexible pool which supports different threads with different
-functions and it also supports a timeout. It has a worker thread which spawn the
-the different threads until the `pool_size` is met. One a thread is finished
-or reached the timeout time, it would be killed and removed from the pool.
-If the worker is idel for `work_idel`
 
 
 ## Examples
@@ -118,3 +134,9 @@ a = Example()
 a.test_threads()
 
 ```
+
+## Contributing 
+Contributions are welcome! Please fork the repository and submit a pull request with your improvements or bug fixes. 
+
+## License 
+This project is licensed under the Apache License. See the LICENSE file for details.
