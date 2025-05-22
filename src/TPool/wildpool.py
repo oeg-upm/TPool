@@ -56,8 +56,10 @@ class WildPool:
         self.bench = queue.SimpleQueue()
         self.queue_lock = threading.Lock()
         self.worker_lock = threading.Lock()
+        self.join_lock = threading.Lock()
         self.worker = None
         self.keep_going = True
+        self._join_is_called = False
         if not logger:
             logger = logging.getLogger(__name__)
             logger.setLevel(logging.CRITICAL)
@@ -74,6 +76,9 @@ class WildPool:
         """
         with self.worker_lock:
             keep_going = self.keep_going
+        with self.join_lock:
+            if keep_going and self._join_is_called and self.bench.empty():
+                keep_going = False
         return keep_going
 
     def add_thread(self, thread: threading.Thread):
@@ -163,6 +168,7 @@ class WildPool:
             self._start_capsule(thread)
         else:
             self.logger.debug(f"TPool: None is passed to jump.")
+            self.semaphore.release()  # otherwise, we will have a semaphore acquired without a release
 
     def _worker_func(self):
         """
@@ -172,13 +178,46 @@ class WildPool:
         no more than the allowed number of threads are running simultaneously.
         It runs until the pool is instructed to stop.
         """
-        self.semaphore.acquire()  # This is not a typo. Because otherwise, n+1 will be running instead of n threads
         while self._should_keep_going():
+            self.semaphore.acquire()
             th = self.bench.get()
             self._jump_into_the_pool(thread=th)
             self._kick_dead_threads()
-            self.semaphore.acquire()
         self.logger.debug("TPool: The worker is terminated")
+
+    def join(self):
+        """
+        Block until all queued tasks have been processed and the worker thread exits.
+
+        This method initiates a graceful shutdown of the thread pool. It waits for all tasks
+        currently in the queue (`bench`) to be consumed and processed. Once the queue is empty,
+        the worker thread will terminate, and this method will return.
+
+        If `join()` has already been called, subsequent calls will be ignored to prevent
+        unintended side effects or redundant shutdown attempts.
+
+        Internally, a `None` sentinel is enqueued to unblock the worker if it is waiting
+        for tasks, allowing it to check for shutdown conditions and exit cleanly.
+
+        Note:
+            - `join()` and `stop()` are mutually exclusive; calling both may lead to undefined behavior.
+            - After calling `join()`, no new tasks should be added to the pool.
+
+        Usage Example:
+            pool = WildPool(pool_size=4)
+            for task in tasks:
+                pool.add_thread(threading.Thread(target=task))
+            pool.start_worker()
+            pool.join()  # Waits until all tasks are done
+        """
+        with self.join_lock:
+            if self._join_is_called:  # prevent duplicate calls to join
+                return
+            self._join_is_called = True
+        self.add_thread(None)  # to release the blocked bench.get in the _worker_func
+        if self.worker:
+            if self.worker.is_alive():
+                self.worker.join()
 
     def stop(self):
         """
@@ -187,6 +226,10 @@ class WildPool:
         This method gracefully shuts down the worker thread, ensuring that
         all running threads are completed and resources are cleaned up.
         """
+        with self.join_lock:
+            if self._join_is_called:  # prevent calling both stop and join
+                return
+
         self.logger.debug("TPool: releasing resources ...")
         with self.worker_lock:
             if self.worker and self.worker.is_alive():
@@ -195,11 +238,6 @@ class WildPool:
             else:
                 worker_alive = False
         self.bench.put(None)  # to release the block in the main loop in case the bench get is blocking
-        try:
-            # to release the semaphore block in case it was blocking. Extra releasing will cause the exception
-            self.semaphore.release()
-        except Exception as e:
-            pass
         self.logger.debug("TPool: waiting for the worker to join")
         if worker_alive:
             self.worker.join()

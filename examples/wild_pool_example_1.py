@@ -13,7 +13,6 @@ class Example:
     def set_even_or_odd(self, n):
         print(f"processing: {n}")
         self.lock.acquire()
-        val = ""
         if n%2 == 0:
             val = "even"
         else:
@@ -31,6 +30,7 @@ class Example:
         for i in range(100):
             th = Thread(target=self.set_even_or_odd, args=(i,))
             pool.add_thread(th)
+        pool.start_worker()
         pool.join()
         print(self.data)
 
