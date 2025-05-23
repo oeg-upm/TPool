@@ -218,6 +218,10 @@ class WildPool:
         if self.worker:
             if self.worker.is_alive():
                 self.worker.join()
+        for _ in range(self.pool_size):
+            self.semaphore.acquire()
+        for _ in range(self.pool_size):
+            self.semaphore.release()
 
     def stop(self):
         """
