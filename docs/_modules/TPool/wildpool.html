@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TPool.wildpool &#8212; TPool 1.6 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4f649999" />
+    <title>TPool.wildpool &#8212; TPool 1.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=6625fa76" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=039e1c02" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=5a6d333d"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=fe15b724"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -29,12 +29,12 @@
           <div class="body" role="main">
             
   <h1>Source code for TPool.wildpool</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">queue</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">queue</span>
 
 
-<div class="viewcode-block" id="WildPool"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool">[docs]</a><span class="k">class</span> <span class="nc">WildPool</span><span class="p">:</span>
+<div class="viewcode-block" id="WildPool"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">WildPool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A flexible thread pool for managing concurrent tasks.</span>
 
@@ -67,7 +67,7 @@
 <span class="sd">    :param logger: Optional custom logger. If not provided, a default logger will be used.</span>
 <span class="sd">    :type logger: logging.Logger, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the WildPool with a specified pool size and an optional logger.</span>
 
@@ -87,8 +87,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bench</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">SimpleQueue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queue_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worker_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">join_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worker</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">keep_going</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_join_is_called</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span><span class="p">:</span>
             <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
@@ -96,7 +98,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
 
-    <span class="k">def</span> <span class="nf">_should_keep_going</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_keep_going</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether the worker thread should continue running.</span>
 
@@ -105,9 +107,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_lock</span><span class="p">:</span>
             <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_going</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">keep_going</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_join_is_called</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bench</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="n">keep_going</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">keep_going</span>
 
-<div class="viewcode-block" id="WildPool.add_thread"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.add_thread">[docs]</a>    <span class="k">def</span> <span class="nf">add_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+<div class="viewcode-block" id="WildPool.add_thread"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.add_thread">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a thread to the pool to be managed and executed.</span>
 
@@ -116,7 +121,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bench</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_run_in_capsule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_in_capsule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start and manage the lifecycle of a thread within the pool.</span>
 
@@ -133,7 +138,7 @@
         <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_start_capsule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_start_capsule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start a new thread capsule to run the provided thread.</span>
 
@@ -146,7 +151,7 @@
         <span class="n">th</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_in_capsule</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">thread</span><span class="p">,))</span>
         <span class="n">th</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_kick_dead_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_kick_dead_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove completed threads from the pool.</span>
 
@@ -161,7 +166,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TPool: Removing thread </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> from the pool&quot;</span><span class="p">)</span>
                     <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span>
 
-<div class="viewcode-block" id="WildPool.start_worker"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.start_worker">[docs]</a>    <span class="k">def</span> <span class="nf">start_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WildPool.start_worker"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.start_worker">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">start_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start a worker thread if none is currently running.</span>
 
@@ -179,7 +184,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TPool: worker is running&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_jump_into_the_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_jump_into_the_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start a thread capsule.</span>
 
@@ -194,8 +199,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_start_capsule</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TPool: None is passed to jump.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>  <span class="c1"># otherwise, we will have a semaphore acquired without a release</span>
 
-    <span class="k">def</span> <span class="nf">_worker_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_worker_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The main function for the worker thread.</span>
 
@@ -203,21 +209,62 @@
 <span class="sd">        no more than the allowed number of threads are running simultaneously.</span>
 <span class="sd">        It runs until the pool is instructed to stop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>  <span class="c1"># This is not a typo. Because otherwise, n+1 will be running instead of n threads</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_keep_going</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
             <span class="n">th</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bench</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_jump_into_the_pool</span><span class="p">(</span><span class="n">thread</span><span class="o">=</span><span class="n">th</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_kick_dead_threads</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TPool: The worker is terminated&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="WildPool.stop"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WildPool.join"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.join">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Block until all queued tasks have been processed and the worker thread exits.</span>
+
+<span class="sd">        This method initiates a graceful shutdown of the thread pool. It waits for all tasks</span>
+<span class="sd">        currently in the queue (`bench`) to be consumed and processed. Once the queue is empty,</span>
+<span class="sd">        the worker thread will terminate, and this method will return.</span>
+
+<span class="sd">        If `join()` has already been called, subsequent calls will be ignored to prevent</span>
+<span class="sd">        unintended side effects or redundant shutdown attempts.</span>
+
+<span class="sd">        Internally, a `None` sentinel is enqueued to unblock the worker if it is waiting</span>
+<span class="sd">        for tasks, allowing it to check for shutdown conditions and exit cleanly.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            - `join()` and `stop()` are mutually exclusive; calling both may lead to undefined behavior.</span>
+<span class="sd">            - After calling `join()`, no new tasks should be added to the pool.</span>
+
+<span class="sd">        Usage Example:</span>
+<span class="sd">            pool = WildPool(pool_size=4)</span>
+<span class="sd">            for task in tasks:</span>
+<span class="sd">                pool.add_thread(threading.Thread(target=task))</span>
+<span class="sd">            pool.start_worker()</span>
+<span class="sd">            pool.join()  # Waits until all tasks are done</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_join_is_called</span><span class="p">:</span>  <span class="c1"># prevent duplicate calls to join</span>
+                <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_join_is_called</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_thread</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># to release the blocked bench.get in the _worker_func</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool_size</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool_size</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WildPool.stop"><a class="viewcode-back" href="../../TPool.html#TPool.wildpool.WildPool.stop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stop the worker thread and release resources.</span>
 
 <span class="sd">        This method gracefully shuts down the worker thread, ensuring that</span>
 <span class="sd">        all running threads are completed and resources are cleaned up.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_join_is_called</span><span class="p">:</span>  <span class="c1"># prevent calling both stop and join</span>
+                <span class="k">return</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TPool: releasing resources ...&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
@@ -226,11 +273,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">worker_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bench</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># to release the block in the main loop in case the bench get is blocking</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># to release the semaphore block in case it was blocking. Extra releasing will cause the exception</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TPool: waiting for the worker to join&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">worker_alive</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
@@ -238,7 +280,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TPool: the worker is not running so join would be skipped&quot;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Destructor to ensure proper cleanup.</span>
 
@@ -302,7 +344,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2024, Ahmad Alobaid.
+      &copy;2025, Ahmad Alobaid.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
